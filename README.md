@@ -72,17 +72,26 @@ The organiser (@Larens94) publishes the CodeDNA reference runs first. If you wan
 
 ## How to participate
 
-1. **Choose a task** from the `tasks/` folder
-2. **Clone this repo** and work on `project/` with your agent + configuration
-3. **Run the tests** — they must pass (CI verifies this, not self-reported)
-4. **Fill in `results.json`** with your metrics (token usage, cost, files touched)
-5. **Open a PR** adding `submissions/<your-username>/` with:
-   - `results.json` — your metrics
-   - `config/` — your configuration files (CLAUDE.md, .cursorrules, etc.)
-   - Optional: `session.jsonl` or a link to your raw session trace
+Every submission contains **two runs on the same task**: one with CodeDNA (the control) and one with your configuration. The comparison is self-contained in your PR — the judge does not run anything.
 
-**Submissions with invalid or non-passing tests are discarded.**
-The organiser (@Larens94) reviews all submissions before the leaderboard updates.
+1. **Choose a task** from the `tasks/` folder
+2. **Run 1 — CodeDNA control:** annotate the project with `codedna init`, then run your agent
+3. **Run 2 — your configuration:** run the same task with your approach (custom CLAUDE.md, no-config, RAG, etc.)
+4. **Open a PR** adding `submissions/<your-username>/` with:
+   ```
+   submissions/<your-username>/
+   ├── codedna/
+   │   ├── results.json     # run with CodeDNA
+   │   └── session.jsonl    # optional — Claude Code session trace
+   ├── challenger/
+   │   ├── results.json     # run with your configuration
+   │   ├── config/          # your config files (CLAUDE.md, .cursorrules, etc.)
+   │   └── session.jsonl    # optional
+   └── report.md            # mini report covering both runs
+   ```
+
+**The judge (@Larens94) reviews each PR for validity and symmetry before it counts toward the ranking.**
+CI verifies that tests pass — invalid or failing submissions are discarded.
 
 ---
 
