@@ -4,7 +4,7 @@
 
 > **CodeDNA migliora il tuo workflow — indipendentemente dallo stack che usi?**
 
-Un benchmark ablativo aperto per ricercatori e sviluppatori. Esegui lo stesso task reale di bug-fix multi-file **due volte con il tuo setup** — una senza annotazioni CodeDNA, una con — e misura il delta in modo oggettivo.
+Un benchmark ablativo aperto per ricercatori e sviluppatori. Esegui lo stesso task reale di bug-fix multi-file **due volte con il tuo setup** — una senza CodeDNA, una con il setup completo CodeDNA (annotazioni + configurazione agente + wiki) — e misura il delta in modo oggettivo.
 
 ## Premi (simbolici)
 
@@ -24,12 +24,20 @@ Questa **non** è "la tua configurazione contro CodeDNA." È uno studio ablativo
 
 | Run | Cosa cambia |
 |-----|-------------|
-| **Run A — baseline** | Il tuo tool + il tuo modello + la tua config, *senza* annotazioni CodeDNA |
-| **Run B — con CodeDNA** | Stesso tool, modello e config — ma il progetto viene annotato con `codedna init` |
+| **Run A — baseline** | Il tuo tool + il tuo modello + la tua config, *senza* CodeDNA |
+| **Run B — con CodeDNA** | Stesso tool, modello e config — più il **setup completo CodeDNA** |
 
-L'unica variabile che cambia tra Run A e Run B è la presenza delle annotazioni CodeDNA nei file sorgente. Tutto il resto rimane costante: stesso bug, stesso modello, stessi file di configurazione, stesso tool.
+L'unica variabile che cambia tra Run A e Run B è CodeDNA. Tutto il resto rimane costante: stesso bug, stesso modello, stesso tool.
 
-**Puoi portare qualsiasi stack** (RAG, vector DB, MCP, CLAUDE.md personalizzato, Cursor, Copilot, pipeline multi-agente). L'ablazione funziona in ogni caso — Run A è il tuo stack senza CodeDNA, Run B è il tuo stack con CodeDNA.
+**Setup completo CodeDNA (Run B)** significa tre cose che lavorano insieme — le sole annotazioni non bastano:
+
+1. **Annotazioni sorgente** — `codedna init` scrive `exports:` `used_by:` `rules:` `related:` `agent:` `message:` in ogni file
+2. **Configurazione agente** — il `CLAUDE.md` CodeDNA (o equivalente) indica all'agente come leggere e usare quelle annotazioni; senza di esso l'agente le ignora
+3. **Wiki** — `codedna wiki sync` genera il project wiki narrativo; offre all'agente una visione semantica d'insieme della codebase prima di iniziare a navigare
+
+**Puoi portare qualsiasi stack** (RAG, vector DB, MCP, Cursor, Copilot, pipeline multi-agente) in aggiunta. L'ablazione funziona in ogni caso — Run A è il tuo stack senza CodeDNA, Run B è il tuo stack con il setup completo CodeDNA.
+
+> Guida all'installazione e documentazione completa: **[github.com/Larens94/codedna](https://github.com/Larens94/codedna)**
 
 ### Cosa aggiunge CodeDNA (solo Run B)
 
@@ -57,7 +65,7 @@ L'unica variabile che cambia tra Run A e Run B è la presenza delle annotazioni 
    - Eventuali **casi borderline** — qualsiasi cosa che potrebbe influire sulla validità e dovrebbe essere esaminata prima di essere conteggiata
    - Cosa è cambiato tra Run A e Run B, e cosa ti ha sorpreso
 
-5. **Stack simmetrico:** Run A e Run B devono usare lo stesso tool, modello e file di configurazione. L'unica differenza consentita è la presenza delle annotazioni CodeDNA.
+5. **Stack simmetrico:** Run A e Run B devono usare lo stesso tool, modello e file di configurazione. L'unica differenza consentita è il setup completo CodeDNA (annotazioni + protocollo CLAUDE.md + wiki).
 
 6. **Una submission per task per partecipante.** Puoi ripresentare se la tua submission precedente era invalida (test falliti), ma devi aprire una nuova PR con un nuovo `report.md` che spiega cosa è cambiato.
 
@@ -71,7 +79,11 @@ Ogni submission contiene **due run sullo stesso task**: Run A (senza CodeDNA) e 
 
 1. **Scegli un task** dalla cartella `tasks/`
 2. **Run A — baseline:** esegui il tuo agente sul progetto congelato. Senza annotazioni CodeDNA.
-3. **Run B — con CodeDNA:** annota lo stesso progetto congelato con `codedna init`, poi esegui lo stesso agente e config sullo stesso task.
+3. **Run B — con CodeDNA:** configura il setup completo CodeDNA sullo stesso progetto congelato:
+   - `codedna init` — annota tutti i file sorgente
+   - Aggiungi il `CLAUDE.md` CodeDNA (da [github.com/Larens94/codedna](https://github.com/Larens94/codedna)) in modo che l'agente legga e usi le annotazioni
+   - `codedna wiki sync` — genera il project wiki
+   - Poi esegui lo stesso agente sullo stesso task
 4. **Apri una PR** aggiungendo `submissions/<tuo-username>/`:
    ```
    submissions/<tuo-username>/

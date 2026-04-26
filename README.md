@@ -4,7 +4,7 @@
 
 > **Does CodeDNA improve your workflow — regardless of your stack?**
 
-An open ablation benchmark for researchers and developers. Run the same real multi-file bug-fix task **twice with your own setup** — once without CodeDNA annotations, once with — and measure the delta objectively.
+An open ablation benchmark for researchers and developers. Run the same real multi-file bug-fix task **twice with your own setup** — once without CodeDNA, once with the full CodeDNA setup (annotations + agent configuration + wiki) — and measure the delta objectively.
 
 ## Prizes (symbolic)
 
@@ -24,12 +24,20 @@ This is **not** "your config vs CodeDNA." It is an ablation study:
 
 | Run | What changes |
 |-----|-------------|
-| **Run A — baseline** | Your tool + your model + your config, *without* CodeDNA annotations |
-| **Run B — with CodeDNA** | Exact same tool, model, and config — but the project is annotated with `codedna init` |
+| **Run A — baseline** | Your tool + your model + your config, *without* CodeDNA |
+| **Run B — with CodeDNA** | Exact same tool, model, and config — plus the **full CodeDNA setup** |
 
-The only variable that changes between Run A and Run B is whether CodeDNA annotations are present in the source files. Everything else is held constant: same bug, same model, same configuration files, same tool.
+The only variable that changes between Run A and Run B is CodeDNA. Everything else is held constant: same bug, same model, same tool.
 
-**You can bring any stack** (RAG, vector DB, MCP, custom CLAUDE.md, Cursor, Copilot, multi-agent pipelines). The ablation works regardless — Run A is your stack without CodeDNA, Run B is your stack with CodeDNA.
+**Full CodeDNA setup (Run B)** means three things working together — annotations alone are not enough:
+
+1. **Source annotations** — `codedna init` writes `exports:` `used_by:` `rules:` `related:` `agent:` `message:` into every file
+2. **Agent configuration** — the CodeDNA `CLAUDE.md` (or equivalent) tells the agent how to read and act on those annotations; without it the agent ignores them
+3. **Wiki** — `codedna wiki sync` generates the narrative project wiki; this gives the agent a semantic sky-view of the codebase before it starts navigating
+
+**You can bring any stack** (RAG, vector DB, MCP, Cursor, Copilot, multi-agent pipelines) on top of this. The ablation works regardless — Run A is your stack without CodeDNA, Run B is your stack with the full CodeDNA setup.
+
+> Full installation guide and configuration reference: **[github.com/Larens94/codedna](https://github.com/Larens94/codedna)**
 
 ### What CodeDNA adds (Run B only)
 
@@ -57,7 +65,7 @@ The only variable that changes between Run A and Run B is whether CodeDNA annota
    - Any **borderline cases** — anything that could affect validity and should be reviewed before counting
    - What changed between Run A and Run B, and what surprised you
 
-5. **Symmetric stack:** Run A and Run B must use the same tool, model, and configuration files. The only permitted difference is CodeDNA annotations.
+5. **Symmetric stack:** Run A and Run B must use the same tool, model, and configuration files. The only permitted difference is the full CodeDNA setup (annotations + CLAUDE.md protocol + wiki).
 
 6. **One submission per task per participant.** You may resubmit if your previous submission was invalid (tests failed), but you must open a new PR with a new `report.md` explaining what changed.
 
@@ -71,7 +79,11 @@ Every submission contains **two runs on the same task**: Run A (no CodeDNA) and 
 
 1. **Choose a task** from the `tasks/` folder
 2. **Run A — baseline:** run your agent on the frozen project. No CodeDNA annotations.
-3. **Run B — with CodeDNA:** annotate the same frozen project with `codedna init`, then run the same agent and config on the same task.
+3. **Run B — with CodeDNA:** set up the full CodeDNA stack on the same frozen project:
+   - `codedna init` — annotate all source files
+   - Add the CodeDNA `CLAUDE.md` (from [github.com/Larens94/codedna](https://github.com/Larens94/codedna)) so the agent reads and uses the annotations
+   - `codedna wiki sync` — generate the project wiki
+   - Then run the same agent on the same task
 4. **Open a PR** adding `submissions/<your-username>/` with:
    ```
    submissions/<your-username>/
