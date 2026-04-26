@@ -1,0 +1,47 @@
+name: Verify submission & update leaderboard
+
+on:
+  pull_request:
+    types: [closed]
+    paths:
+      - "submissions/**"
+
+jobs:
+  verify:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install anyio dependencies
+        run: pip install -e project/anyio[trio] pytest
+
+      - name: Detect changed submission
+        id: sub
+        run: |
+          CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD \
+                    | grep '^submissions/' | head -1)
+          SUB_DIR=$(echo "$CHANGED" | cut -d/ -f1-2)
+          TASK=$(python -c "import json; d=json.load(open('$SUB_DIR/results.json')); print(d['task'])")
+          echo "dir=$SUB_DIR" >> $GITHUB_OUTPUT
+          echo "task=$TASK"   >> $GITHUB_OUTPUT
+
+      - name: Run verify.py
+        run: |
+          python scripts/verify.py \
+            --task ${{ steps.sub.outputs.task }} \
+            --submission ${{ steps.sub.outputs.dir }}
+
+      - name: Regenerate leaderboard.json
+        run: python dashboard/generate.py
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dashboard
+          destination_dir: .

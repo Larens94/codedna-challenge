@@ -1,0 +1,13 @@
+{
+  "task": "task_01",
+  "issue_url": "https://github.com/agronholm/anyio/issues/TBD",
+  "anyio_commit": "TBD",
+  "files_in_patch": [
+    "anyio/_backends/asyncio.py",
+    "anyio/_backends/trio.py"
+  ],
+  "test_file": "tasks/task_01/failing_test.py",
+  "test_ids": [
+    "test_TBD"
+  ]
+}

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeDNA Challenge — Leaderboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; background: #f8f9fa; color: #1a1a2e; }
+
+    header {
+      background: #1a1a2e;
+      color: white;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    header h1 { font-size: 20px; font-weight: 700; }
+    header .sub { font-size: 13px; color: #94a3b8; margin-top: 2px; }
+    .badge { background: #3730a3; color: white; font-size: 10px; font-weight: 700;
+             padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; }
+
+    .page { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
+
+    /* Stats row */
+    .stats { display: flex; gap: 12px; margin-bottom: 24px; }
+    .stat { background: white; border: 1px solid #e2e8f0; border-top: 3px solid #3730a3;
+            border-radius: 6px; padding: 14px 18px; flex: 1; text-align: center; }
+    .stat-num { font-size: 26px; font-weight: 700; color: #3730a3; }
+    .stat-lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+    /* Filters */
+    .filters { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    select, input { padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 6px;
+                    font-size: 13px; background: white; color: #1a1a2e; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; background: white;
+            border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    thead tr { background: #1a1a2e; color: white; }
+    th { padding: 11px 14px; font-size: 12px; font-weight: 600; text-align: left;
+         letter-spacing: 0.3px; cursor: pointer; user-select: none; white-space: nowrap; }
+    th:hover { background: #2d2d44; }
+    td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f9ff; }
+
+    .rank { font-weight: 700; color: #3730a3; width: 32px; }
+    .pass  { color: #16a34a; font-weight: 600; }
+    .fail  { color: #dc2626; font-weight: 600; }
+    .pill  { display: inline-block; padding: 2px 8px; border-radius: 20px;
+             font-size: 11px; font-weight: 600; }
+    .pill-dna  { background: #ede9fe; color: #3730a3; }
+    .pill-other { background: #f1f5f9; color: #475569; }
+    .mono { font-family: monospace; font-size: 12px; }
+
+    /* Charts */
+    .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+    .chart-box { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; }
+    .chart-box h3 { font-size: 13px; font-weight: 600; margin-bottom: 14px; color: #475569; }
+    canvas { width: 100% !important; }
+
+    .empty { text-align: center; padding: 48px; color: #94a3b8; font-size: 14px; }
+    footer { text-align: center; margin-top: 32px; font-size: 12px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:22px;">🧬</span>
+      <h1>CodeDNA Challenge</h1>
+      <span class="badge">LEADERBOARD</span>
+    </div>
+    <div class="sub">Compare any agent configuration on the same real bugs — objectively.</div>
+  </div>
+</header>
+
+<div class="page">
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="s-total">—</div><div class="stat-lbl">total submissions</div></div>
+    <div class="stat"><div class="stat-num" id="s-passing">—</div><div class="stat-lbl">tests passing</div></div>
+    <div class="stat"><div class="stat-num" id="s-best-f1">—</div><div class="stat-lbl">best F1</div></div>
+    <div class="stat"><div class="stat-num" id="s-best-cost">—</div><div class="stat-lbl">lowest cost (passing)</div></div>
+  </div>
+
+  <div class="filters">
+    <select id="f-task"><option value="">All tasks</option></select>
+    <select id="f-approach"><option value="">All approaches</option></select>
+    <input id="f-search" placeholder="Search participant…" style="width:200px;">
+  </div>
+
+  <table id="lb-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th data-col="participant">Participant</th>
+        <th data-col="task">Task</th>
+        <th data-col="approach">Approach</th>
+        <th data-col="f1_localization">F1 ↓</th>
+        <th data-col="tests_pass">Tests</th>
+        <th data-col="cost_usd">Cost</th>
+        <th data-col="tokens_input">Tokens in</th>
+        <th data-col="cache_read">Cache read</th>
+        <th data-col="tool_calls_total">Tool calls</th>
+      </tr>
+    </thead>
+    <tbody id="lb-body">
+      <tr><td colspan="10" class="empty">Loading…</td></tr>
+    </tbody>
+  </table>
+
+  <div class="charts">
+    <div class="chart-box">
+      <h3>F1 localization by approach</h3>
+      <canvas id="chart-f1"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Cost vs F1 (passing submissions)</h3>
+      <canvas id="chart-scatter"></canvas>
+    </div>
+  </div>
+</div>
+
+<footer>
+  CodeDNA Challenge · <a href="https://github.com/Larens94/codedna-challenge" style="color:#3730a3;">github.com/Larens94/codedna-challenge</a>
+  · Leaderboard auto-updated on every merged PR
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+let allData = [];
+let sortCol = "f1_localization", sortDir = -1;
+
+async function load() {
+  const r = await fetch("leaderboard.json?" + Date.now());
+  const lb = await r.json();
+  allData = [...lb.ranked, ...lb.failed];
+
+  document.getElementById("s-total").textContent   = lb.total_submissions;
+  document.getElementById("s-passing").textContent = lb.ranked.length;
+  document.getElementById("s-best-f1").textContent  =
+    lb.ranked.length ? lb.ranked[0].f1_localization.toFixed(2) : "—";
+  const costs = lb.ranked.map(s => s.cost_usd).filter(Boolean);
+  document.getElementById("s-best-cost").textContent =
+    costs.length ? "$" + Math.min(...costs).toFixed(3) : "—";
+
+  // Populate filters
+  const tasks     = [...new Set(allData.map(s => s.task).filter(Boolean))];
+  const approaches = [...new Set(allData.map(s => s.approach).filter(Boolean))];
+  const fTask = document.getElementById("f-task");
+  const fApp  = document.getElementById("f-approach");
+  tasks.forEach(t     => { const o = document.createElement("option"); o.value = o.textContent = t;     fTask.appendChild(o); });
+  approaches.forEach(a => { const o = document.createElement("option"); o.value = o.textContent = a; fApp.appendChild(o); });
+
+  render();
+  renderCharts(lb.ranked);
+}
+
+function filtered() {
+  const task  = document.getElementById("f-task").value;
+  const app   = document.getElementById("f-approach").value;
+  const search = document.getElementById("f-search").value.toLowerCase();
+  return allData.filter(s =>
+    (!task   || s.task === task) &&
+    (!app    || s.approach === app) &&
+    (!search || (s.participant||"").toLowerCase().includes(search))
+  );
+}
+
+function render() {
+  const data = filtered().sort((a, b) => {
+    const va = a[sortCol] ?? (sortDir > 0 ? Infinity : -Infinity);
+    const vb = b[sortCol] ?? (sortDir > 0 ? Infinity : -Infinity);
+    return (va < vb ? -1 : va > vb ? 1 : 0) * sortDir;
+  });
+
+  const tbody = document.getElementById("lb-body");
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="empty">No submissions yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map((s, i) => `
+    <tr>
+      <td class="rank">${i + 1}</td>
+      <td><a href="https://github.com/${s.participant}" target="_blank">${s.participant || "—"}</a></td>
+      <td class="mono">${s.task || "—"}</td>
+      <td><span class="pill ${s.approach?.includes("codedna") ? "pill-dna" : "pill-other"}">${s.approach || "—"}</span></td>
+      <td><strong>${s.f1_localization != null ? s.f1_localization.toFixed(2) : "—"}</strong></td>
+      <td class="${s.tests_pass ? "pass" : "fail"}">${s.tests_pass ? "✅ pass" : "❌ fail"}</td>
+      <td>$${(s.cost_usd || 0).toFixed(3)}</td>
+      <td class="mono">${(s.tokens_input || 0).toLocaleString()}</td>
+      <td class="mono">${(s.cache_read || 0).toLocaleString()}</td>
+      <td>${s.tool_calls_total || "—"}</td>
+    </tr>
+  `).join("");
+}
+
+function renderCharts(ranked) {
+  if (!ranked.length) return;
+
+  // Bar chart: avg F1 per approach
+  const byApproach = {};
+  ranked.forEach(s => {
+    const k = s.approach || "unknown";
+    byApproach[k] = byApproach[k] || [];
+    byApproach[k].push(s.f1_localization || 0);
+  });
+  const labels = Object.keys(byApproach);
+  const avgs   = labels.map(k => {
+    const vals = byApproach[k];
+    return vals.reduce((a, b) => a + b, 0) / vals.length;
+  });
+
+  new Chart(document.getElementById("chart-f1"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{ label: "Avg F1", data: avgs, backgroundColor: "#3730a3", borderRadius: 4 }]
+    },
+    options: { scales: { y: { min: 0, max: 1 } }, plugins: { legend: { display: false } } }
+  });
+
+  // Scatter: cost vs F1
+  new Chart(document.getElementById("chart-scatter"), {
+    type: "scatter",
+    data: {
+      datasets: [{
+        label: "Submissions",
+        data: ranked.map(s => ({ x: s.cost_usd || 0, y: s.f1_localization || 0, label: s.participant })),
+        backgroundColor: "#3730a3",
+        pointRadius: 6,
+      }]
+    },
+    options: {
+      scales: {
+        x: { title: { display: true, text: "Cost ($)" } },
+        y: { title: { display: true, text: "F1" }, min: 0, max: 1 }
+      }
+    }
+  });
+}
+
+// Sort on header click
+document.querySelectorAll("th[data-col]").forEach(th => {
+  th.addEventListener("click", () => {
+    const col = th.dataset.col;
+    if (sortCol === col) sortDir *= -1;
+    else { sortCol = col; sortDir = -1; }
+    render();
+  });
+});
+
+// Filter events
+["f-task", "f-approach", "f-search"].forEach(id =>
+  document.getElementById(id).addEventListener("input", render));
+
+load();
+</script>
+</body>
+</html>
