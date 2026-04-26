@@ -29,7 +29,7 @@ Questa **non** è "la tua configurazione contro CodeDNA." È uno studio ablativo
 
 L'unica variabile che cambia tra Run A e Run B è la presenza delle annotazioni CodeDNA nei file sorgente. Tutto il resto rimane costante: stesso bug, stesso modello, stessi file di configurazione, stesso tool.
 
-**Puoi portare qualsiasi stack** (RAG, vector DB, MCP, CLAUDE.md personalizzato, Cursor, Copilot). L'ablazione funziona in ogni caso — Run A è il tuo stack senza CodeDNA, Run B è il tuo stack con CodeDNA.
+**Puoi portare qualsiasi stack** (RAG, vector DB, MCP, CLAUDE.md personalizzato, Cursor, Copilot, pipeline multi-agente). L'ablazione funziona in ogni caso — Run A è il tuo stack senza CodeDNA, Run B è il tuo stack con CodeDNA.
 
 ### Cosa aggiunge CodeDNA (solo Run B)
 
@@ -193,4 +193,4 @@ Se CodeDNA non fa differenza nel tuo stack, è un risultato valido e interessant
 
 - GitHub: [@Larens94](https://github.com/Larens94)
 - Spec & paper CodeDNA: [github.com/Larens94/codedna](https://github.com/Larens94/codedna)
-- Domande: apri una issue in questo repo
+- Domande o proposte di task: apri una issue in questo repo oppure scrivi a [fabrizio.corpora@gmail.com](mailto:fabrizio.corpora@gmail.com)

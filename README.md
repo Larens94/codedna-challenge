@@ -29,7 +29,7 @@ This is **not** "your config vs CodeDNA." It is an ablation study:
 
 The only variable that changes between Run A and Run B is whether CodeDNA annotations are present in the source files. Everything else is held constant: same bug, same model, same configuration files, same tool.
 
-**You can bring any stack** (RAG, vector DB, MCP, custom CLAUDE.md, Cursor, Copilot). The ablation works regardless — Run A is your stack without CodeDNA, Run B is your stack with CodeDNA.
+**You can bring any stack** (RAG, vector DB, MCP, custom CLAUDE.md, Cursor, Copilot, multi-agent pipelines). The ablation works regardless — Run A is your stack without CodeDNA, Run B is your stack with CodeDNA.
 
 ### What CodeDNA adds (Run B only)
 
@@ -193,4 +193,4 @@ If CodeDNA makes no difference on your stack, that is a valid and interesting re
 
 - GitHub: [@Larens94](https://github.com/Larens94)
 - CodeDNA spec & paper: [github.com/Larens94/codedna](https://github.com/Larens94/codedna)
-- Questions: open an issue in this repo
+- Questions or task proposals: open an issue in this repo or email [fabrizio.corpora@gmail.com](mailto:fabrizio.corpora@gmail.com)
