@@ -156,11 +156,25 @@ For other tools (Cursor, Copilot, OpenCode), fill `results.json` manually from y
 
 ## Tasks
 
+Tasks are proposed and validated by the research community before the challenge opens.
+
+**Requirements for a valid task:**
+- Real bug from an open source Python project (not already in SWE-bench)
+- Multi-file fix: patch touches 2–6 files
+- Deterministic test suite: a specific test fails before the fix and passes after
+- The project is frozen at a specific commit — everyone works on identical code
+
+**To propose a task:** open an issue with the label `task-proposal` including the GitHub issue URL, the commit to freeze, and the failing test.
+
+The challenge opens once at least **3 validated tasks** are ready and **20 participants** have signed up.
+
+The organiser (@Larens94) publishes the CodeDNA reference runs on each task as the baseline everyone competes against.
+
 | Task | Project | Difficulty | Files affected |
 |------|---------|------------|----------------|
-| [task_01](tasks/task_01/description.md) | TBD | medium | TBD |
-| [task_02](tasks/task_02/description.md) | TBD | hard | TBD |
-| [task_03](tasks/task_03/description.md) | TBD | hard | TBD |
+| task_01 | open for proposals | — | — |
+| task_02 | open for proposals | — | — |
+| … | up to 10 tasks | — | — |
 
 ---
 
