@@ -1,10 +1,12 @@
+> ⚠️ **BOZZA — non ancora aperta.** I task sono in fase di finalizzazione. Segui questo repo per l'annuncio di lancio.
+
 # CodeDNA Challenge
 
-> **La tua configurazione agente naviga una codebase meglio di CodeDNA — allo stesso livello?**
+> **CodeDNA migliora il tuo workflow — indipendentemente dallo stack che usi?**
 
-Un benchmark aperto per ricercatori e sviluppatori. Risolvi gli stessi bug reali multi-file con qualsiasi configurazione — annotazioni CodeDNA, CLAUDE.md personalizzato, .cursorrules, nessuna configurazione — e confronta i risultati in modo oggettivo.
+Un benchmark ablativo aperto per ricercatori e sviluppatori. Esegui lo stesso task reale di bug-fix multi-file **due volte con il tuo setup** — una senza annotazioni CodeDNA, una con — e misura il delta in modo oggettivo.
 
-## Premi
+## Premi (simbolici)
 
 | Posizione | Premio |
 |-----------|--------|
@@ -12,37 +14,32 @@ Un benchmark aperto per ricercatori e sviluppatori. Risolvi gli stessi bug reali
 | 🥈 2° posto | €100 |
 | 🥉 3° posto | €50 |
 
-I vincitori vengono annunciati al raggiungimento del numero minimo di submission valide.
-I risultati vengono pubblicati in tempo reale sulla leaderboard.
+I premi sono simbolici e finanziati dall'organizzatore. I vincitori vengono annunciati al raggiungimento di almeno 20 submission valide tra tutti i task.
 
 ---
 
-## La regola di fairness: stack simmetrico
+## Il design: ablazione within-stack
 
-CodeDNA è sempre il **control**. Ogni submission viene confrontata con una run CodeDNA allo **stesso livello di stack**.
+Questa **non** è "la tua configurazione contro CodeDNA." È uno studio ablativo:
 
-### Livelli dello stack CodeDNA
+| Run | Cosa cambia |
+|-----|-------------|
+| **Run A — baseline** | Il tuo tool + il tuo modello + la tua config, *senza* annotazioni CodeDNA |
+| **Run B — con CodeDNA** | Stesso tool, modello e config — ma il progetto viene annotato con `codedna init` |
 
-CodeDNA v0.9 include più layer — i partecipanti scelgono quali attivare:
+L'unica variabile che cambia tra Run A e Run B è la presenza delle annotazioni CodeDNA nei file sorgente. Tutto il resto rimane costante: stesso bug, stesso modello, stessi file di configurazione, stesso tool.
 
-| Layer CodeDNA | Cosa aggiunge |
-|---------------|--------------|
+**Puoi portare qualsiasi stack** (RAG, vector DB, MCP, CLAUDE.md personalizzato, Cursor, Copilot). L'ablazione funziona in ogni caso — Run A è il tuo stack senza CodeDNA, Run B è il tuo stack con CodeDNA.
+
+### Cosa aggiunge CodeDNA (solo Run B)
+
+| Layer | Cosa aggiunge |
+|-------|--------------|
 | **L0** — manifest `.codedna` | Mappa dei package a livello di repo, iniettata all'avvio della sessione |
 | **L1** — module headers | `exports:` `used_by:` `rules:` `related:` `agent:` `message:` in ogni file |
 | **L2** — function Rules: | Vincoli a livello di docstring ad ogni chiamata cross-file |
 | **L3** — semantic naming | I nomi delle variabili codificano tipo + origine + dominio |
-| **wiki** — knowledge vault | Campo `wiki:` + `codedna wiki bootstrap/sync` → vault Obsidian + project wiki narrativo |
-
-### Regola di confronto
-
-| La tua submission | Run CodeDNA control richiesta |
-|-------------------|-------------------------------|
-| Qualsiasi config, nessun extra | CodeDNA L0+L1 |
-| La tua config + knowledge base / docs | CodeDNA L0+L1+wiki |
-| La tua config + RAG | CodeDNA L0+L1+wiki + stesso setup RAG |
-| La tua config + vector DB / MCP / Skills | CodeDNA L0+L1+wiki + stessi extra |
-
-**Puoi portare qualsiasi stack — purché CodeDNA abbia lo stesso stack nel confronto.**
+| **wiki** | Campo `wiki:` + `codedna wiki sync` → project wiki narrativo |
 
 ---
 
@@ -50,17 +47,17 @@ CodeDNA v0.9 include più layer — i partecipanti scelgono quali attivare:
 
 1. **Numero minimo di partecipanti:** la leaderboard e i premi si attivano quando si raggiungono **almeno 20 submission valide** tra tutti i task. Prima di quella soglia, le submission vengono raccolte ma non classificate.
 
-2. **Validità:** una submission è valida solo se `task_tests_pass: true` E `regression_tests_pass: true`, verificato dalla CI. Le submission non valide o con test falliti vengono scartate.
+2. **Validità:** una submission è valida solo se `task_tests_pass: true` E `regression_tests_pass: true` in **entrambe** Run A e Run B, verificato dalla CI. Le submission non valide vengono scartate.
 
 3. **Niente imbrogli:** le submission che hardcodano output attesi, leggono i file ground-truth prima di iniziare, o aggirano in altro modo la vera navigazione dell'agente vengono squalificate. Il giudice (@Larens94) revisiona manualmente tutte le submission.
 
 4. **Mini relazione obbligatoria:** ogni submission deve includere un `report.md` (max 1 pagina) che copre:
-   - Quale configurazione hai usato e perché
-   - Come l'agente ha approcciato il task (strategia di navigazione)
-   - Eventuali **casi borderline** — annotazioni ambigue, edge case nel task, o qualsiasi cosa che dovrebbe essere esaminata prima di essere conteggiata
-   - Qualcosa che ti ha sorpreso (positivo o negativo)
+   - Quale tool, modello e configurazione hai usato
+   - Come l'agente ha approcciato il task in Run A e Run B (strategia di navigazione)
+   - Eventuali **casi borderline** — qualsiasi cosa che potrebbe influire sulla validità e dovrebbe essere esaminata prima di essere conteggiata
+   - Cosa è cambiato tra Run A e Run B, e cosa ti ha sorpreso
 
-5. **Stack simmetrico:** se aggiungi strumenti oltre al Level 0 (RAG, vector DB, MCP), è richiesta una run CodeDNA corrispondente allo stesso livello di stack.
+5. **Stack simmetrico:** Run A e Run B devono usare lo stesso tool, modello e file di configurazione. L'unica differenza consentita è la presenza delle annotazioni CodeDNA.
 
 6. **Una submission per task per partecipante.** Puoi ripresentare se la tua submission precedente era invalida (test falliti), ma devi aprire una nuova PR con un nuovo `report.md` che spiega cosa è cambiato.
 
@@ -70,32 +67,32 @@ CodeDNA v0.9 include più layer — i partecipanti scelgono quali attivare:
 
 ## Come partecipare
 
-Ogni submission contiene **due run sullo stesso task**: una con CodeDNA (il control) e una con la tua configurazione. Il confronto è auto-contenuto nella tua PR — il giudice non esegue nulla.
+Ogni submission contiene **due run sullo stesso task**: Run A (senza CodeDNA) e Run B (con CodeDNA). Le esegui entrambe tu. Il confronto è auto-contenuto nella tua PR — il giudice non esegue nulla.
 
 1. **Scegli un task** dalla cartella `tasks/`
-2. **Run 1 — CodeDNA control:** annota il progetto con `codedna init`, poi esegui il tuo agente
-3. **Run 2 — la tua configurazione:** esegui lo stesso task con il tuo approccio (CLAUDE.md custom, no-config, RAG, ecc.)
+2. **Run A — baseline:** esegui il tuo agente sul progetto congelato. Senza annotazioni CodeDNA.
+3. **Run B — con CodeDNA:** annota lo stesso progetto congelato con `codedna init`, poi esegui lo stesso agente e config sullo stesso task.
 4. **Apri una PR** aggiungendo `submissions/<tuo-username>/`:
    ```
    submissions/<tuo-username>/
+   ├── baseline/
+   │   ├── results.json     # Run A — senza CodeDNA
+   │   └── session.jsonl    # opzionale — session trace (Claude Code, Cursor, ecc.)
    ├── codedna/
-   │   ├── results.json     # run con CodeDNA
-   │   └── session.jsonl    # opzionale — session trace Claude Code
-   ├── challenger/
-   │   ├── results.json     # run con la tua configurazione
-   │   ├── config/          # i tuoi file di config (CLAUDE.md, .cursorrules, ecc.)
+   │   ├── results.json     # Run B — con CodeDNA
    │   └── session.jsonl    # opzionale
+   ├── config/              # i tuoi file di config (CLAUDE.md, .cursorrules, ecc.)
    └── report.md            # mini relazione su entrambe le run
    ```
 
-**Il giudice (@Larens94) revisiona ogni PR per validità e simmetria prima che conti nella classifica.**
+**Il giudice (@Larens94) revisiona ogni PR per validità e simmetria dello stack prima che conti nella classifica.**
 La CI verifica che i test passino — le submission invalide vengono scartate.
 
 ---
 
 ## Metriche
 
-Ogni submission viene valutata su:
+Sia Run A che Run B vengono misurate sullo stesso set di metriche. Il delta tra le due è il segnale principale.
 
 **Correttezza della fix**
 | Metrica | Descrizione |
@@ -124,7 +121,7 @@ Ogni submission viene valutata su:
 | Metrica | Descrizione |
 |---------|-------------|
 | `agent_count` | Numero di agenti nella sessione |
-| `message_adoption_rate` | % di file in cui gli agenti hanno usato `message:` per coordinarsi (solo CodeDNA) |
+| `message_adoption_rate` | % di file in cui gli agenti hanno usato `message:` per coordinarsi (solo Run B) |
 | `framework_conflicts` | Conflitti architetturali rilevati (es. due agenti che usano framework diversi) |
 
 **Perché queste metriche contano — dati esistenti CodeDNA:**
@@ -139,26 +136,19 @@ Ogni submission viene valutata su:
 
 CodeDNA non aiuta solo l'agente a trovare i file giusti — elimina completamente i failed edit sui task con dependency chain. Questa challenge verifica se ciò vale su nuovi progetti e nuovi modelli.
 
-Classifica: `task_tests_pass` + `regression_tests_pass` prima → `f1_localization` DESC → `cost_usd` ASC (tutte le retry sommate).
+Classifica: `task_tests_pass` + `regression_tests_pass` (entrambe le run) prima → `f1_localization` (Run B) DESC → `cost_usd` (Run B) ASC.
 
 ---
 
-## Generare results.json automaticamente
+## Raccogliere le metriche
 
-Se hai usato **Claude Code**, esegui:
+**Claude Code** — estrai dal JSONL della sessione in `~/.claude/projects/<hash>/<session-id>.jsonl`:
+- Le righe con `"type": "assistant"` contengono `message.usage` con `input_tokens`, `output_tokens`, `cache_creation_input_tokens`, `cache_read_input_tokens`
+- Esegui `/cost` all'interno della sessione per un riepilogo in tempo reale
 
-```bash
-python scripts/report.py \
-  --session ~/.claude/projects/<hash>/<session-id>.jsonl \
-  --task task_01 \
-  --participant tuo-username-github \
-  --approach "codedna-v0.9"
-```
+**Altri tool** (Cursor, Copilot, OpenCode) — compila `results.json` manualmente dalle statistiche d'uso del tuo tool.
 
-Questo legge il JSONL della sessione e compila automaticamente tutte le metriche token/costo/tool-call.
-Dovrai compilare manualmente `files_touched`.
-
-Per altri strumenti (Cursor, Copilot, OpenCode), compila `results.json` manualmente dalle statistiche d'uso del tuo tool.
+Vedi `submissions/example/` per il template completo di `results.json`.
 
 ---
 
@@ -179,14 +169,13 @@ La challenge si apre quando almeno **3 task validati** sono pronti e **20 partec
 | Task | Progetto | Difficoltà | File coinvolti |
 |------|----------|------------|----------------|
 | task_01 | aperto a proposte | — | — |
-| task_02 | aperto a proposte | — | — |
 | … | fino a 10 task | — | — |
 
 ---
 
 ## Leaderboard
 
-→ **[Visualizza la leaderboard live](https://larens94.github.io/codedna-challenge)**
+In arrivo — pubblicata al lancio della challenge.
 
 ---
 
@@ -194,9 +183,9 @@ La challenge si apre quando almeno **3 task validati** sono pronti e **20 partec
 
 Non è un esercizio di marketing. CodeDNA è stato progettato per risolvere un problema specifico: gli agenti AI spendono troppo del loro budget di contesto navigando i file sbagliati. L'ipotesi è che incorporare metadati di navigazione direttamente nei file sorgente — a Level 0, senza infrastruttura esterna — sia sufficiente a migliorare misurabilmente le performance degli agenti.
 
-Abbiamo già dati benchmark su task Django di SWE-bench. Questa challenge invita la community a testare l'ipotesi su progetti diversi, con modelli diversi e configurazioni concorrenti.
+Abbiamo già dati benchmark su task Django di SWE-bench. Questa challenge invita la community a testare l'ipotesi su progetti diversi, modelli diversi e stack diversi — e a fornire evidenze controllate a favore o contro.
 
-Se il tuo approccio batte CodeDNA, è un risultato valido e interessante. Pubblicalo.
+Se CodeDNA non fa differenza nel tuo stack, è un risultato valido e interessante. Pubblicalo.
 
 ---
 

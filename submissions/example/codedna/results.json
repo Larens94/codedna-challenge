@@ -1,6 +1,7 @@
 {
   "task": "task_01",
   "participant": "your-github-username",
+  "run": "codedna",
   "approach": "codedna-v0.9",
   "codedna_layers": ["L0", "L1", "L2", "wiki"],
   "stack_extras": [],

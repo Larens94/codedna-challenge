@@ -1,6 +1,6 @@
 # Task 01 — TBD
 
-**Sorgente:** issue #TBD del progetto TBD
+**Sorgente:** issue #TBD · progetto TBD
 **Difficoltà:** media
 
 ## Descrizione del bug
@@ -21,6 +21,8 @@ pytest tasks/task_01/failing_test.py -v
 
 Prima della fix: **FAIL**
 Dopo la fix: **PASS**
+
+---
 
 ## Come proporre un task
 

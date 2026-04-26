@@ -1,7 +1,8 @@
 {
   "task": "task_01",
   "participant": "your-github-username",
-  "approach": "your-approach-name",
+  "run": "baseline",
+  "approach": "your-tool-and-config",
   "codedna_layers": [],
   "stack_extras": [],
   "tools": "claude-code | claude-sonnet-4-6",
